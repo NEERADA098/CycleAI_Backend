@@ -2,11 +2,8 @@ from pydantic import BaseModel
 from datetime import datetime
 from typing import Optional
 
-# ── Cycle Schemas ──────────────────────────────────────────────────
-
 class CycleLogCreate(BaseModel):
-    """Shape of data the Flutter app sends when logging a period."""
-    id: str  # UUID generated on device - same ID used in SQLite
+    id: str
     user_id: str
     start_date: datetime
     end_date: Optional[datetime] = None
@@ -16,7 +13,6 @@ class CycleLogCreate(BaseModel):
     notes: Optional[str] = None
 
 class CycleLogResponse(BaseModel):
-    """Shape of data we send back to the Flutter app."""
     id: str
     user_id: str
     start_date: datetime
@@ -28,12 +24,10 @@ class CycleLogResponse(BaseModel):
     created_at: datetime
 
     class Config:
-        from_attributes = True  # Allows creating from SQLAlchemy model
+        from_attributes = True
 
-# ── Symptom Schemas ────────────────────────────────────────────────
 
 class SymptomLogCreate(BaseModel):
-    """Shape of data the Flutter app sends when logging a symptom."""
     id: str
     user_id: str
     log_date: datetime
@@ -53,14 +47,8 @@ class SymptomLogResponse(BaseModel):
     class Config:
         from_attributes = True
 
-# ── Sync Schema ────────────────────────────────────────────────────
 
 class SyncPayload(BaseModel):
-    """
-    Batch sync - Flutter app sends ALL unsynced records at once.
-    This is more efficient than one HTTP request per record,
-    which matters in low-connectivity rural environments.
-    """
     user_id: str
     cycle_logs: list[CycleLogCreate] = []
     symptom_logs: list[SymptomLogCreate] = []
