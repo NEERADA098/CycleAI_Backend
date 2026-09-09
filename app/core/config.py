@@ -6,6 +6,8 @@ class Settings(BaseSettings):
     environment: str = "development"
     database_url: str
     secret_key: str
+    anthropic_api_key: str = ""
+    groq_api_key: str = ""
 
     class Config:
         env_file = ".env"
