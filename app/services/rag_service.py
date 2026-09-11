@@ -71,7 +71,7 @@ USER QUESTION:
 Answer based only on the verified knowledge above."""
 
         response = self._groq.chat.completions.create(
-            model="openai/gpt-oss-20b",
+            model="qwen/qwen3.8-27b",
             max_tokens=300,
             messages=[
                 {"role": "system", "content": SYSTEM_PROMPT},
@@ -80,6 +80,10 @@ Answer based only on the verified knowledge above."""
         )
 
         answer_text = response.choices[0].message.content
+        
+        if not answer_text or not answer_text.strip():
+            answer_text = ("I was unable to generate a response. "
+                          "Please consult a doctor for medical advice.")
 
         return {
             "answer": answer_text,
