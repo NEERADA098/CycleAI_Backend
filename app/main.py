@@ -5,6 +5,7 @@ from app.core.database import engine, Base
 from app.api.v1.cycle_routes import router as cycle_router
 from app.api.v1.asha_routes import router as asha_router
 from app.api.v1.chat_routes import router as chat_router
+from app.api.v1.location_routes import router as location_router
 
 Base.metadata.create_all(bind=engine)
 
@@ -26,6 +27,7 @@ app.add_middleware(
 app.include_router(cycle_router, prefix="/api/v1", tags=["Health Data"])
 app.include_router(asha_router, prefix="/api/v1", tags=["ASHA Dashboard"])
 app.include_router(chat_router, prefix="/api/v1", tags=["Chatbot"])
+app.include_router(location_router, prefix="/api/v1", tags=["Geospatial"])
 
 @app.get("/")
 def root():

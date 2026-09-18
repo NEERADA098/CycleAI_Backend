@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Integer, DateTime, Boolean
+from sqlalchemy import Column, String, Integer, DateTime, Boolean, Float
 from sqlalchemy.sql import func
 from app.core.database import Base
 
@@ -43,3 +43,20 @@ class UserProfile(Base):
     menarche_date = Column(DateTime, nullable=True)
     created_at = Column(DateTime, server_default=func.now())
     last_active = Column(DateTime, nullable=True)
+
+
+class HealthLocation(Base):
+    """
+    Stores disposal sites and pad supply points with GPS coordinates.
+    Populated by ASHA workers and administrators via the dashboard.
+    """
+    __tablename__ = "health_locations"
+
+    id = Column(String, primary_key=True, index=True)
+    name = Column(String, nullable=False)
+    location_type = Column(String, nullable=False)
+    latitude = Column(Float, nullable=False)
+    longitude = Column(Float, nullable=False)
+    address = Column(String, nullable=True)
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime, server_default=func.now())
