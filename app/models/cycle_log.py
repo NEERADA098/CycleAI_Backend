@@ -60,3 +60,22 @@ class HealthLocation(Base):
     address = Column(String, nullable=True)
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime, server_default=func.now())
+
+
+class IncineratorStatus(Base):
+    """
+    Stores real-time sensor readings from smart incinerators.
+    Each row is one reading from one device at one point in time.
+    The ESP32 publishes via MQTT, FastAPI saves here.
+    """
+    __tablename__ = "incinerator_status"
+
+    id = Column(String, primary_key=True, index=True)
+    device_id = Column(String, nullable=False, index=True)
+    temperature_celsius = Column(Float, nullable=True)
+    is_burning = Column(Boolean, default=False)
+    fill_percentage = Column(Float, nullable=True)
+    usage_count = Column(Integer, default=0)
+    battery_level = Column(Float, nullable=True)
+    is_online = Column(Boolean, default=True)
+    recorded_at = Column(DateTime, server_default=func.now())
