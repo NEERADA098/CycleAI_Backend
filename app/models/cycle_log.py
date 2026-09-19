@@ -79,3 +79,37 @@ class IncineratorStatus(Base):
     battery_level = Column(Float, nullable=True)
     is_online = Column(Boolean, default=True)
     recorded_at = Column(DateTime, server_default=func.now())
+
+
+class SupplyDistribution(Base):
+    """
+    Records each pad distribution event at a supply point.
+    ASHA workers log this when they distribute pads.
+    Drives the supply analytics dashboard.
+    """
+    __tablename__ = "supply_distributions"
+
+    id = Column(String, primary_key=True, index=True)
+    location_id = Column(String, nullable=False, index=True)
+    location_name = Column(String, nullable=False)
+    pads_distributed = Column(Integer, nullable=False)
+    beneficiary_count = Column(Integer, nullable=False)
+    distributed_by = Column(String, nullable=True)
+    notes = Column(String, nullable=True)
+    distributed_at = Column(DateTime, server_default=func.now())
+
+
+class SupplyStock(Base):
+    """
+    Current stock levels at each supply point.
+    Updated when new supplies arrive or are distributed.
+    """
+    __tablename__ = "supply_stock"
+
+    id = Column(String, primary_key=True, index=True)
+    location_id = Column(String, nullable=False, unique=True, index=True)
+    location_name = Column(String, nullable=False)
+    current_stock = Column(Integer, default=0)
+    minimum_threshold = Column(Integer, default=50)
+    last_restocked_at = Column(DateTime, nullable=True)
+    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
