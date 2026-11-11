@@ -78,6 +78,9 @@ class IncineratorStatus(Base):
     usage_count = Column(Integer, default=0)
     battery_level = Column(Float, nullable=True)
     is_online = Column(Boolean, default=True)
+    gas_ppm = Column(Float, nullable=True)
+    air_quality = Column(String, nullable=True)
+    auto_shutdown = Column(Boolean, default=False)
     recorded_at = Column(DateTime, server_default=func.now())
 
 

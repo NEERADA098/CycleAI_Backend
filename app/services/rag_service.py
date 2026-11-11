@@ -33,11 +33,11 @@ class RAGService:
         if self._client is not None:
             return
 
+        from app.knowledge.knowledge_builder import build_knowledge_base
+        build_knowledge_base()
         self._client = chromadb.PersistentClient(path="./knowledge_db")
 
-        embedding_fn = embedding_functions.SentenceTransformerEmbeddingFunction(
-            model_name="all-MiniLM-L6-v2"
-        )
+        embedding_fn = embedding_functions.DefaultEmbeddingFunction()
 
         self._collection = self._client.get_collection(
             name="medical_knowledge",

@@ -1,7 +1,8 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from app.services.rag_service import rag_service
 from app.services.safety_filter import safety_filter
+from app.core.rate_limit import chat_rate_limit
 
 router = APIRouter()
 
@@ -20,7 +21,7 @@ class ChatResponse(BaseModel):
 
 
 @router.post("/chat/", response_model=ChatResponse)
-def chat(request: ChatRequest):
+def chat(request: ChatRequest, _limit: None = Depends(chat_rate_limit)):
     if not request.question.strip():
         raise HTTPException(status_code=400, detail="Question cannot be empty")
 

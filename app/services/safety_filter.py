@@ -99,9 +99,12 @@ DEFAULT_URGENT_MESSAGE = (
 )
 
 
+_APOSTROPHES = {0x2019: "'", 0x2018: "'"}
+
+
 class SafetyFilter:
     def check(self, question: str) -> SafetyCheckResult:
-        question_lower = question.lower().strip()
+        question_lower = question.lower().strip().translate(_APOSTROPHES)
         
         for phrase, flag_type in RED_FLAGS:
             if phrase in question_lower:

@@ -70,6 +70,9 @@ def simulate_reading(device: dict, cycle: int) -> dict:
         "usage_count": cycle // 18,
         "battery_level": round(battery, 1),
         "is_online": True,
+        "gas_ppm": round(50 + (20 if burning_phase else 5) + random.uniform(-5, 5), 1),
+        "air_quality": "unsafe" if burning_phase and cycle > 2 else "safe",
+        "auto_shutdown": False,
     }
 
 def on_connect(client, userdata, flags, rc, properties=None):

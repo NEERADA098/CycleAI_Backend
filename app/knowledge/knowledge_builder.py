@@ -132,9 +132,7 @@ MEDICAL_KNOWLEDGE = [
 def build_knowledge_base():
     client = chromadb.PersistentClient(path="./knowledge_db")
     
-    embedding_fn = embedding_functions.SentenceTransformerEmbeddingFunction(
-        model_name="all-MiniLM-L6-v2"
-    )
+    embedding_fn = embedding_functions.DefaultEmbeddingFunction()
     
     collection = client.get_or_create_collection(
         name="medical_knowledge",

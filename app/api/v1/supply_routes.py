@@ -6,6 +6,7 @@ from typing import Optional
 from datetime import datetime, timedelta
 import uuid
 from app.core.database import get_db
+from sqlalchemy import text
 from app.models.cycle_log import SupplyDistribution, SupplyStock
 
 router = APIRouter()
@@ -224,4 +225,55 @@ def seed_supply_data(db: Session = Depends(get_db)):
     return {
         "message": f"Seeded {len(sample_stocks)} stock records "
                    f"and {len(sample_distributions)} distribution events"
+    }
+
+@router.get("/supply/forecast/{location_id}")
+def forecast_demand(location_id: str, db: Session = Depends(get_db)):
+    """
+    Estimates pad demand for next 30 days based on active users
+    and their cycle patterns. Gives ASHA workers a data-driven
+    restocking recommendation.
+    
+    Formula: active_users × avg_period_days × pads_per_day
+    Conservative estimate: 4 pads per day during period
+    """
+    # Count users who logged in the past 60 days
+    active_users = db.execute(text("""
+        SELECT COUNT(DISTINCT user_id) FROM cycle_logs
+        WHERE created_at >= NOW() - INTERVAL '60 days'
+    """)).scalar() or 0
+    
+    # Average period length from logged data
+    avg_period = db.execute(text("""
+        SELECT AVG(period_length) FROM cycle_logs
+        WHERE period_length IS NOT NULL
+        AND period_length BETWEEN 2 AND 10
+    """)).scalar() or 5.0
+    
+    # Pads per day (conservative: 4 pads per day)
+    pads_per_day = 4
+    
+    # Not all active users will have their period in any given month
+    # Estimate 75% will in any 30-day window
+    estimated_demand = round(active_users * 0.75 * avg_period * pads_per_day)
+    
+    # Get current stock for this location
+    stock = db.execute(text("""
+        SELECT current_stock, minimum_threshold FROM supply_stock
+        WHERE location_id = :lid
+    """), {"lid": location_id}).fetchone()
+    
+    current_stock = stock[0] if stock else 0
+    threshold = stock[1] if stock else 50
+    
+    shortfall = max(0, estimated_demand - current_stock)
+    
+    return {
+        "location_id": location_id,
+        "active_users_in_area": active_users,
+        "estimated_demand_30_days": estimated_demand,
+        "current_stock": current_stock,
+        "recommended_restock_quantity": shortfall + threshold,
+        "restock_urgency": "high" if current_stock < threshold else "normal",
+        "avg_period_length_days": round(float(avg_period), 1)
     }
